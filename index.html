@@ -136,7 +136,8 @@
     font-size: 13px; padding: 6px 10px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
     transition: all .15s;
   }
-  .icon-btn:hover { border-color: var(--red); color: var(--red); }
+  .icon-btn:hover { border-color: var(--green); color: var(--green); }
+  .icon-btn.danger:hover { border-color: var(--red); color: var(--red); }
 
   .layout { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 53px); }
 
@@ -170,6 +171,7 @@
     content: ''; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
     width: 8px; height: 8px; background: var(--green); box-shadow: 0 0 6px var(--green);
   }
+  .ticket-item.closed { opacity: 0.5; }
 
   .ti-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
   .ti-preview { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -293,12 +295,6 @@
     </div>
 
     <button class="btn" onclick="startBot()">▶ ЗАПУСТИТЬ БОТА</button>
-
-    <p class="hint">
-      Токен получить у <a href="https://t.me/BotFather" target="_blank">@BotFather</a> →
-      /mybots → API Token<br>
-      Ваш ID узнать у <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a>
-    </p>
   </div>
 </div>
 
@@ -313,7 +309,7 @@
       <span>Оценка: <b id="stat-avg">—</b></span>
     </div>
     <button class="icon-btn" onclick="openReviews()">📊 Отзывы</button>
-    <button class="icon-btn" onclick="logout()">✕ Выйти</button>
+    <button class="icon-btn danger" onclick="logout()">✕ Выйти</button>
   </header>
 
   <div class="layout">
@@ -337,10 +333,11 @@
       <div id="chat-main" style="display:none;flex:1;display:flex;flex-direction:column;overflow:hidden">
         <div class="chat-header" id="chat-header">
           <div class="ch-avatar" id="ch-avatar">?</div>
-          <div>
+          <div style="flex: 1;">
             <div class="ch-name" id="ch-name">—</div>
             <div class="ch-sub" id="ch-sub">—</div>
           </div>
+          <button class="icon-btn danger" id="btn-close-ticket" onclick="closeActiveTicket()">🛑 Закрыть тикет</button>
         </div>
         <div id="chat-messages"></div>
         <div class="reply-box">
@@ -373,6 +370,23 @@ let totalTickets = 0;
 
 const API = () => `https://api.telegram.org/bot${TOKEN}`;
 
+// Сохранение тикетов в память браузера
+function saveTickets() {
+  localStorage.setItem('kc_tickets', JSON.stringify(tickets));
+}
+
+function loadTickets() {
+  const saved = localStorage.getItem('kc_tickets');
+  if (saved) {
+    try {
+      tickets = JSON.parse(saved);
+      totalTickets = Object.keys(tickets).length;
+    } catch(e) {
+      tickets = {};
+    }
+  }
+}
+
 function startBot() {
   const t = document.getElementById('inp-token').value.trim();
   const a = document.getElementById('inp-admin').value.trim();
@@ -380,23 +394,25 @@ function startBot() {
   TOKEN = t; ADMIN_ID = String(a);
   localStorage.setItem('kc_token', TOKEN);
   localStorage.setItem('kc_admin', ADMIN_ID);
-  const saved = localStorage.getItem('kc_reviews');
-  if (saved) reviews = JSON.parse(saved);
+  
+  const savedRev = localStorage.getItem('kc_reviews');
+  if (savedRev) reviews = JSON.parse(savedRev);
+  
   launch();
 }
 
-// УЛУЧШЕНО: Функция теперь асинхронная и сама сносит вебхук перед стартом
 async function launch() {
   document.getElementById('setup').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  loadTickets(); // Загружаем переписки при старте
+  renderTicketList();
   updateStats();
   
   setStatus(true, 'Сброс старого вебхука...');
   try {
-    // Автоматически чистим вебхук, чтобы не было ошибки Conflict
     await fetch(`${API()}/deleteWebhook`);
   } catch(e) {
-    console.log("Сброс вебхука пропущен или выполнен:", e);
+    console.log("Сброс вебхука пропущен:", e);
   }
 
   startPolling();
@@ -407,6 +423,7 @@ function logout() {
   stopPolling();
   localStorage.removeItem('kc_token');
   localStorage.removeItem('kc_admin');
+  // Оставляем билеты в памяти, удаляем только авторизацию
   location.reload();
 }
 
@@ -417,8 +434,10 @@ window.addEventListener('load', () => {
     TOKEN = t; ADMIN_ID = String(a);
     document.getElementById('inp-token').value = t;
     document.getElementById('inp-admin').value = a;
-    const saved = localStorage.getItem('kc_reviews');
-    if (saved) reviews = JSON.parse(saved);
+    
+    const savedRev = localStorage.getItem('kc_reviews');
+    if (savedRev) reviews = JSON.parse(savedRev);
+    
     launch();
   }
 });
@@ -481,18 +500,23 @@ async function handleMessage(msg) {
     return;
   }
 
+  // Если тикет был закрыт, а юзер пишет снова - открываем его
   if (!tickets[chatId]) {
-    tickets[chatId] = { name: fromName, username: from.username || '', msgs: [], unread: true };
+    tickets[chatId] = { name: fromName, username: from.username || '', msgs: [], unread: true, closed: false };
     totalTickets++;
-    updateStats();
   } else {
     tickets[chatId].unread = true;
+    tickets[chatId].closed = false; // Переоткрываем тикет
   }
+  updateStats();
 
   addMsgToTicket(chatId, fromName, from.username, 'user', text || '[медиафайл]');
-  renderTicketList();
+  
+  // Отвечаем авто-сообщением только если это новое сообщение (первое в открытом тикете)
+  if (tickets[chatId].msgs.length === 1 || tickets[chatId].closed === false) {
+    await sendMsg(chatId, '📬 <b>Ваше обращение принято!</b>\n\n⏳ Мы ответим вам <b>в ближайшее время</b>.');
+  }
 
-  await sendMsg(chatId, '📬 <b>Ваше обращение принято!</b>\n\n⏳ Мы ответим вам <b>в ближайшее время</b>.\n\nПосле получения ответа, пожалуйста, не забудьте\nоставить <b>отзыв</b> о решении вашей проблемы 🌟\n\n━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>');
   playPing();
   browserNotify(`Новое обращение от ${fromName}`, text || '[медиафайл]');
 }
@@ -525,6 +549,12 @@ async function handleCallback(cb) {
 
 async function sendReply() {
   if (!activeChat) return;
+  const t = tickets[activeChat];
+  if (t && t.closed) {
+    showToast('❌ Этот тикет закрыт. Пользователь должен написать первым.');
+    return;
+  }
+
   const input = document.getElementById('reply-input');
   const text  = input.value.trim();
   if (!text) return;
@@ -536,12 +566,25 @@ async function sendReply() {
     await sendMsg(activeChat, `✅ <b>Ответ поддержки KozloCraft:</b>\n` + `━━━━━━━━━━━━━━━━━━━\n${escHTML(text)}\n` + `━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>`);
     addMsgToTicket(activeChat, 'Вы', null, 'admin', text);
     input.value = ''; input.style.height = 'auto';
-    setTimeout(() => askForReview(activeChat), 2000);
     showToast('✅ Ответ отправлен!');
   } catch(e) {
     showToast('❌ Ошибка: ' + e.message);
   }
   btn.disabled = false;
+}
+
+async function closeActiveTicket() {
+  if (!activeChat || !tickets[activeChat]) return;
+  if (confirm('Закрыть это обращение и попросить отзыв у пользователя?')) {
+    tickets[activeChat].closed = true;
+    tickets[activeChat].unread = false;
+    addSystemMsg(activeChat, 'Тикет закрыт администратором');
+    askForReview(activeChat);
+    saveTickets();
+    renderTicketList();
+    renderChat(activeChat); // Чтобы скрыть поле ввода
+    showToast('✅ Тикет закрыт!');
+  }
 }
 
 async function askForReview(chatId) {
@@ -562,12 +605,11 @@ async function askForReview(chatId) {
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
       chat_id: chatId,
-      text: '⭐ <b>Оцените нашу поддержку!</b>\n\nНасколько вы довольны помощью?\nВаш отзыв помогает нам расти 🚀\n\n<b>Выберите оценку:</b>',
+      text: '⭐ <b>Ваше обращение закрыто! Оцените нашу поддержку!</b>\n\nНасколько вы довольны помощью?\n\n<b>Выберите оценку:</b>',
       parse_mode: 'HTML',
       reply_markup: kb
     })
   });
-  addSystemMsg(chatId, 'Запрос отзыва отправлен');
 }
 
 function saveReview(chatId, name, username, stars, text) {
@@ -633,9 +675,11 @@ function closeReviews() {
 function addMsgToTicket(chatId, name, username, type, text) {
   chatId = String(chatId);
   if (!tickets[chatId]) {
-    tickets[chatId] = { name, username: username||'', msgs:[], unread: true };
+    tickets[chatId] = { name, username: username||'', msgs:[], unread: true, closed: false };
   }
   tickets[chatId].msgs.push({ type, text, time: timeNow() });
+  saveTickets(); // Сохраняем в память
+  
   if (chatId === activeChat) renderChat(chatId);
   renderTicketList();
 }
@@ -654,12 +698,18 @@ function renderTicketList() {
     return;
   }
 
-  list.innerHTML = Object.entries(tickets).reverse().map(([id, t]) => {
+  // Сортировка: сначала открытые, потом закрытые
+  const sortedTickets = Object.entries(tickets).sort((a, b) => {
+    if (a[1].closed === b[1].closed) return 0;
+    return a[1].closed ? 1 : -1;
+  });
+
+  list.innerHTML = sortedTickets.map(([id, t]) => {
     const last = t.msgs[t.msgs.length-1];
     const preview = last ? last.text.slice(0, 40) : '—';
-    const cls = (String(id) === activeChat ? 'active ' : '') + (t.unread ? 'unread' : '');
+    const cls = (String(id) === activeChat ? 'active ' : '') + (t.unread ? 'unread ' : '') + (t.closed ? 'closed' : '');
     return `<div class="ticket-item ${cls}" onclick="selectChat('${id}')"> 
-      <div class="ti-name">${escHTML(t.name)}</div>
+      <div class="ti-name">${escHTML(t.name)} ${t.closed ? ' [ЗАКРЫТ]' : ''}</div>
       <div class="ti-preview">${escHTML(preview)}</div>
       <div class="ti-time">${last?.time || ''}</div>
     </div>`;
@@ -669,7 +719,10 @@ function renderTicketList() {
 function selectChat(chatId) {
   activeChat = String(chatId);
   const t = tickets[activeChat];
-  if (t) t.unread = false;
+  if (t) {
+    t.unread = false;
+    saveTickets();
+  }
 
   document.getElementById('chat-header-wrap').style.display = 'none';
   const main = document.getElementById('chat-main');
@@ -688,6 +741,9 @@ function renderChat(chatId) {
   if (String(chatId) !== activeChat) return;
   const t = tickets[activeChat];
   const container = document.getElementById('chat-messages');
+  const replyBox = document.querySelector('.reply-box');
+  const btnClose = document.getElementById('btn-close-ticket');
+
   if (!t) return;
 
   container.innerHTML = t.msgs.map(m => {
@@ -696,6 +752,15 @@ function renderChat(chatId) {
   }).join('');
 
   container.scrollTop = container.scrollHeight;
+
+  // Прячем ввод и кнопку закрытия, если тикет уже закрыт
+  if (t.closed) {
+    replyBox.style.display = 'none';
+    btnClose.style.display = 'none';
+  } else {
+    replyBox.style.display = 'flex';
+    btnClose.style.display = 'block';
+  }
 }
 
 function updateStats() {
