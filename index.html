@@ -44,6 +44,7 @@
     z-index: 0;
   }
 
+  /* ═══════════════ SETUP SCREEN ═══════════════ */
   #setup {
     position: fixed; inset: 0;
     display: flex; align-items: center; justify-content: center;
@@ -80,182 +81,315 @@
   }
 
   .field { margin-bottom: 18px; }
+
   .field label {
-    display: block; font-size: 10px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px;
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 8px;
   }
+
   .field input {
-    width: 100%; background: var(--surface); border: var(--pixel) solid var(--border);
-    color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    padding: 10px 14px; outline: none; transition: border-color .2s, box-shadow .2s;
+    width: 100%;
+    background: var(--surface);
+    border: var(--pixel) solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
   }
-  .field input:focus { border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+  .field input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
   .field input::placeholder { color: var(--muted); }
 
   .btn {
-    display: block; width: 100%; background: var(--green); color: #000;
-    font-family: 'Press Start 2P', monospace; font-size: 10px; padding: 14px;
-    border: none; cursor: pointer; text-transform: uppercase; letter-spacing: .05em;
-    transition: background .15s, transform .1s; image-rendering: pixelated;
+    display: block; width: 100%;
+    background: var(--green);
+    color: #000;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 14px;
+    border: none; cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    transition: background .15s, transform .1s;
+    image-rendering: pixelated;
   }
   .btn:hover { background: #86efac; }
   .btn:active { transform: translateY(var(--pixel)); }
 
   .hint {
-    font-size: 10px; color: var(--muted); margin-top: 16px; line-height: 1.8;
-    border-left: 2px solid var(--border); padding-left: 10px;
+    font-size: 10px; color: var(--muted);
+    margin-top: 16px; line-height: 1.8;
+    border-left: 2px solid var(--border);
+    padding-left: 10px;
   }
   .hint a { color: var(--green); text-decoration: none; }
 
+  /* ═══════════════ DASHBOARD ═══════════════ */
   #dashboard { display: none; position: relative; z-index: 1; }
 
   header {
-    background: var(--surface); border-bottom: var(--pixel) solid var(--border);
-    padding: 14px 24px; display: flex; align-items: center; gap: 16px;
+    background: var(--surface);
+    border-bottom: var(--pixel) solid var(--border);
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 16px;
     position: sticky; top: 0; z-index: 10;
   }
 
   .logo {
-    font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--green);
-    text-shadow: 0 0 16px var(--green); line-height: 1.6;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--green);
+    text-shadow: 0 0 16px var(--green);
+    line-height: 1.6;
   }
 
   .status-dot {
-    width: 10px; height: 10px; border-radius: 0; background: var(--green);
-    box-shadow: 0 0 8px var(--green); animation: blink 1.4s infinite; flex-shrink: 0;
+    width: 10px; height: 10px;
+    border-radius: 0;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: blink 1.4s infinite;
+    flex-shrink: 0;
   }
   .status-dot.offline { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
 
   #status-text { font-size: 11px; color: var(--muted); flex: 1; }
+  #status-text.error-highlight { color: var(--red); font-weight: bold; }
 
-  .header-stats { display: flex; gap: 20px; font-size: 10px; color: var(--muted); }
+  .header-stats {
+    display: flex; gap: 20px;
+    font-size: 10px; color: var(--muted);
+  }
   .header-stats span b { color: var(--green); }
 
   .icon-btn {
-    background: none; border: var(--pixel) solid var(--border); color: var(--muted);
-    font-size: 13px; padding: 6px 10px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
+    background: none; border: var(--pixel) solid var(--border);
+    color: var(--muted); font-size: 13px;
+    padding: 6px 10px; cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
     transition: all .15s;
   }
-  .icon-btn:hover { border-color: var(--green); color: var(--green); }
-  .icon-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .icon-btn:hover { border-color: var(--red); color: var(--red); }
 
-  .layout { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 53px); }
+  .layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: calc(100vh - 53px);
+  }
 
+  /* ── sidebar ── */
   .sidebar {
-    border-right: var(--pixel) solid var(--border); background: var(--surface);
-    display: flex; flex-direction: column; overflow: hidden;
+    border-right: var(--pixel) solid var(--border);
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    overflow: hidden;
   }
 
   .sidebar-header {
-    padding: 14px 16px; border-bottom: var(--pixel) solid var(--border);
-    font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em;
+    padding: 14px 16px;
+    border-bottom: var(--pixel) solid var(--border);
+    font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .1em;
     display: flex; justify-content: space-between; align-items: center;
   }
   .badge {
-    background: var(--green); color: #000; font-size: 9px;
-    font-family: 'Press Start 2P', monospace; padding: 2px 6px;
+    background: var(--green); color: #000;
+    font-size: 9px; font-family: 'Press Start 2P', monospace;
+    padding: 2px 6px;
   }
 
-  #ticket-list { flex: 1; overflow-y: auto; padding: 8px; }
+  #ticket-list {
+    flex: 1; overflow-y: auto; padding: 8px;
+  }
   #ticket-list::-webkit-scrollbar { width: 4px; }
   #ticket-list::-webkit-scrollbar-track { background: var(--surface); }
   #ticket-list::-webkit-scrollbar-thumb { background: var(--border); }
 
   .ticket-item {
-    padding: 12px 14px; border: var(--pixel) solid transparent; cursor: pointer;
-    margin-bottom: 6px; transition: all .15s; position: relative;
+    padding: 12px 14px;
+    border: var(--pixel) solid transparent;
+    cursor: pointer; margin-bottom: 6px;
+    transition: all .15s; position: relative;
   }
   .ticket-item:hover { border-color: var(--border); background: var(--card); }
-  .ticket-item.active { border-color: var(--green); background: var(--card); box-shadow: 0 0 12px var(--green-glow); }
-  .ticket-item.unread::after {
-    content: ''; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-    width: 8px; height: 8px; background: var(--green); box-shadow: 0 0 6px var(--green);
+  .ticket-item.active {
+    border-color: var(--green);
+    background: var(--card);
+    box-shadow: 0 0 12px var(--green-glow);
   }
-  .ticket-item.closed { opacity: 0.5; }
+  .ticket-item.unread::after {
+    content: '';
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
 
   .ti-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
   .ti-preview { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ti-time { font-size: 9px; color: var(--muted); margin-top: 4px; }
 
-  .chat-panel { display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+  /* ── chat ── */
+  .chat-panel {
+    display: flex; flex-direction: column;
+    background: var(--bg);
+    overflow: hidden;
+    min-height: 0;
+  }
 
   .chat-header {
-    padding: 14px 20px; border-bottom: var(--pixel) solid var(--border);
-    background: var(--surface); display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    border-bottom: var(--pixel) solid var(--border);
+    background: var(--surface);
+    display: flex; align-items: center; gap: 12px;
   }
   .chat-header .ch-name { font-size: 14px; font-weight: 600; }
   .chat-header .ch-sub { font-size: 10px; color: var(--muted); }
   .ch-avatar {
-    width: 36px; height: 36px; background: var(--green-dim); border: var(--pixel) solid var(--green);
-    display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+    width: 36px; height: 36px;
+    background: var(--green-dim);
+    border: var(--pixel) solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
   }
 
   #chat-messages {
-    flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+    flex: 1; overflow-y: auto;
+    padding: 20px; display: flex; flex-direction: column; gap: 12px;
   }
   #chat-messages::-webkit-scrollbar { width: 4px; }
   #chat-messages::-webkit-scrollbar-track { background: transparent; }
   #chat-messages::-webkit-scrollbar-thumb { background: var(--border); }
 
   .empty-state {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; color: var(--muted); text-align: center;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    color: var(--muted); text-align: center;
   }
-  .empty-state .es-icon { font-family: 'Press Start 2P', monospace; font-size: 28px; color: var(--border); }
+  .empty-state .es-icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px; color: var(--border);
+  }
   .empty-state p { font-size: 11px; line-height: 1.8; }
 
-  .msg { max-width: 72%; padding: 10px 14px; font-size: 12px; line-height: 1.6; position: relative; }
-  .msg.from-user { background: var(--card); border: var(--pixel) solid var(--border); align-self: flex-start; border-radius: 0 8px 8px 8px; }
-  .msg.from-admin { background: var(--green-dim); border: var(--pixel) solid var(--green); align-self: flex-end; border-radius: 8px 0 8px 8px; box-shadow: 0 0 10px var(--green-glow); }
-  .msg.system { background: transparent; border: var(--pixel) dashed var(--border); align-self: center; font-size: 10px; color: var(--muted); text-align: center; max-width: 90%; }
+  .msg {
+    max-width: 72%; padding: 10px 14px;
+    font-size: 12px; line-height: 1.6;
+    position: relative;
+  }
+  .msg.from-user {
+    background: var(--card);
+    border: var(--pixel) solid var(--border);
+    align-self: flex-start;
+    border-radius: 0 8px 8px 8px;
+  }
+  .msg.from-admin {
+    background: var(--green-dim);
+    border: var(--pixel) solid var(--green);
+    align-self: flex-end;
+    border-radius: 8px 0 8px 8px;
+    box-shadow: 0 0 10px var(--green-glow);
+  }
+  .msg.system {
+    background: transparent;
+    border: var(--pixel) dashed var(--border);
+    align-self: center;
+    font-size: 10px; color: var(--muted); text-align: center;
+    max-width: 90%;
+  }
   .msg-meta { font-size: 9px; color: var(--muted); margin-top: 5px; }
 
   .reply-box {
-    padding: 14px 20px; border-top: var(--pixel) solid var(--border);
-    background: var(--surface); display: flex; gap: 10px; align-items: flex-end;
+    padding: 14px 20px;
+    border-top: var(--pixel) solid var(--border);
+    background: var(--surface);
+    display: flex; gap: 10px; align-items: flex-end;
   }
   #reply-input {
-    flex: 1; background: var(--card); border: var(--pixel) solid var(--border); color: var(--text);
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 10px 14px;
-    resize: none; outline: none; transition: border-color .2s; max-height: 120px; min-height: 42px;
+    flex: 1;
+    background: var(--card);
+    border: var(--pixel) solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    resize: none; outline: none;
+    transition: border-color .2s;
+    max-height: 120px; min-height: 42px;
   }
   #reply-input:focus { border-color: var(--green); box-shadow: 0 0 10px var(--green-glow); }
   #reply-input::placeholder { color: var(--muted); }
 
   .send-btn {
-    background: var(--green); color: #000; border: none; cursor: pointer; font-family: 'Press Start 2P', monospace;
-    font-size: 9px; padding: 12px 16px; transition: background .15s, transform .1s; white-space: nowrap;
+    background: var(--green); color: #000;
+    border: none; cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px; padding: 12px 16px;
+    transition: background .15s, transform .1s;
+    white-space: nowrap;
   }
   .send-btn:hover { background: #86efac; }
   .send-btn:active { transform: translateY(var(--pixel)); }
   .send-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
 
+  /* ── reviews panel ── */
   #reviews-panel {
-    display: none; position: fixed; inset: 0; background: #000a;
-    z-index: 50; align-items: center; justify-content: center;
+    display: none;
+    position: fixed; inset: 0;
+    background: #000a;
+    z-index: 50;
+    align-items: center; justify-content: center;
   }
   #reviews-panel.open { display: flex; }
 
   .reviews-box {
-    background: var(--card); border: var(--pixel) solid var(--green);
-    box-shadow: 0 0 40px var(--green-glow); width: min(600px, 94vw); max-height: 80vh;
-    overflow-y: auto; padding: 28px; animation: fadeIn .3s ease;
+    background: var(--card);
+    border: var(--pixel) solid var(--green);
+    box-shadow: 0 0 40px var(--green-glow);
+    width: min(600px, 94vw);
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 28px;
+    animation: fadeIn .3s ease;
   }
-  .reviews-box h2 { font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--green); margin-bottom: 20px; }
-  .review-card { border: var(--pixel) solid var(--border); padding: 12px 14px; margin-bottom: 10px; background: var(--surface); }
+  .reviews-box h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px; color: var(--green);
+    margin-bottom: 20px;
+  }
+  .review-card {
+    border: var(--pixel) solid var(--border);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: var(--surface);
+  }
   .rc-stars { font-size: 14px; margin-bottom: 6px; }
   .rc-text { font-size: 12px; line-height: 1.6; margin-bottom: 6px; }
   .rc-meta { font-size: 10px; color: var(--muted); }
   .close-btn {
-    display: block; width: 100%; margin-top: 18px; background: none; border: var(--pixel) solid var(--border);
-    color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 10px; cursor: pointer;
+    display: block; width: 100%; margin-top: 18px;
+    background: none; border: var(--pixel) solid var(--border);
+    color: var(--muted); font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; padding: 10px; cursor: pointer;
   }
   .close-btn:hover { border-color: var(--red); color: var(--red); }
 
   #toast {
-    position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #000;
-    font-size: 11px; padding: 10px 16px; z-index: 200; opacity: 0; transform: translateY(10px);
-    transition: all .3s; pointer-events: none;
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--green); color: #000;
+    font-size: 11px; padding: 10px 16px;
+    z-index: 200; opacity: 0;
+    transform: translateY(10px);
+    transition: all .3s;
+    pointer-events: none;
   }
   #toast.show { opacity: 1; transform: translateY(0); }
 
@@ -267,8 +401,10 @@
   ::-webkit-scrollbar-thumb { background: var(--border); }
 
   .star-avg {
-    font-family: 'Press Start 2P', monospace; font-size: 22px; color: var(--yellow);
-    text-shadow: 0 0 14px #fbbf2466; display: block; margin-bottom: 4px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px; color: var(--yellow);
+    text-shadow: 0 0 14px #fbbf2466;
+    display: block; margin-bottom: 4px;
   }
 
   @media (max-width: 700px) {
@@ -287,7 +423,7 @@
 
     <div class="field">
       <label>🔑 Токен бота</label>
-      <input type="text" id="inp-token" placeholder="1234567890:AAAA..." autocomplete="off">
+      <input type="text" id="inp-token" value="8482677048:AAFUWKDsWHcFremlxyu8RAxRPXXgqg0KSlg" placeholder="1234567890:AAAA..." autocomplete="off">
     </div>
     <div class="field">
       <label>👑 Ваш Telegram ID (Admin)</label>
@@ -295,6 +431,12 @@
     </div>
 
     <button class="btn" onclick="startBot()">▶ ЗАПУСТИТЬ БОТА</button>
+
+    <p class="hint">
+      Токен получить у <a href="https://t.me/BotFather" target="_blank">@BotFather</a> →
+      /mybots → API Token<br>
+      Ваш ID узнать у <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a>
+    </p>
   </div>
 </div>
 
@@ -309,7 +451,7 @@
       <span>Оценка: <b id="stat-avg">—</b></span>
     </div>
     <button class="icon-btn" onclick="openReviews()">📊 Отзывы</button>
-    <button class="icon-btn danger" onclick="logout()">✕ Выйти</button>
+    <button class="icon-btn" onclick="logout()">✕ Выйти</button>
   </header>
 
   <div class="layout">
@@ -321,7 +463,7 @@
     </div>
 
     <div class="chat-panel">
-      <div id="chat-header-wrap">
+      <div id="chat-header-wrap" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
         <div style="flex:1;display:flex;align-items:center;justify-content:center;height:100%">
           <div class="empty-state">
             <div class="es-icon">⛏</div>
@@ -330,14 +472,13 @@
         </div>
       </div>
 
-      <div id="chat-main" style="display:none;flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div id="chat-main" style="display:none;flex-direction:column;overflow:hidden;flex:1">
         <div class="chat-header" id="chat-header">
           <div class="ch-avatar" id="ch-avatar">?</div>
-          <div style="flex: 1;">
+          <div>
             <div class="ch-name" id="ch-name">—</div>
             <div class="ch-sub" id="ch-sub">—</div>
           </div>
-          <button class="icon-btn danger" id="btn-close-ticket" onclick="closeActiveTicket()">🛑 Закрыть тикет</button>
         </div>
         <div id="chat-messages"></div>
         <div class="reply-box">
@@ -360,61 +501,37 @@
 <div id="toast"></div>
 
 <script>
-let TOKEN = '', ADMIN_ID = '';
+let TOKEN = '', ADMIN_ID = 0;
 let offset = 0, polling = false, pollTimer = null;
 let tickets = {};        
 let activeChat = null;
 let pendingReviews = {}; 
 let reviews = [];
-let totalTickets = 0;
 
 const API = () => `https://api.telegram.org/bot${TOKEN}`;
 
-// Сохранение тикетов в память браузера
-function saveTickets() {
-  localStorage.setItem('kc_tickets', JSON.stringify(tickets));
-}
-
-function loadTickets() {
-  const saved = localStorage.getItem('kc_tickets');
-  if (saved) {
-    try {
-      tickets = JSON.parse(saved);
-      totalTickets = Object.keys(tickets).length;
-    } catch(e) {
-      tickets = {};
-    }
-  }
-}
-
 function startBot() {
   const t = document.getElementById('inp-token').value.trim();
-  const a = document.getElementById('inp-admin').value.trim();
+  const a = parseInt(document.getElementById('inp-admin').value.trim());
   if (!t || !a) { showToast('⚠ Заполните оба поля!'); return; }
-  TOKEN = t; ADMIN_ID = String(a);
+  TOKEN = t; ADMIN_ID = a;
   localStorage.setItem('kc_token', TOKEN);
   localStorage.setItem('kc_admin', ADMIN_ID);
   
-  const savedRev = localStorage.getItem('kc_reviews');
-  if (savedRev) reviews = JSON.parse(savedRev);
-  
+  const savedReviews = localStorage.getItem('kc_reviews');
+  if (savedReviews) reviews = JSON.parse(savedReviews);
+
+  const savedTickets = localStorage.getItem('kc_tickets');
+  if (savedTickets) tickets = JSON.parse(savedTickets);
+
   launch();
 }
 
-async function launch() {
+function launch() {
   document.getElementById('setup').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
-  loadTickets(); // Загружаем переписки при старте
   renderTicketList();
   updateStats();
-  
-  setStatus(true, 'Сброс старого вебхука...');
-  try {
-    await fetch(`${API()}/deleteWebhook`);
-  } catch(e) {
-    console.log("Сброс вебхука пропущен:", e);
-  }
-
   startPolling();
 }
 
@@ -423,7 +540,8 @@ function logout() {
   stopPolling();
   localStorage.removeItem('kc_token');
   localStorage.removeItem('kc_admin');
-  // Оставляем билеты в памяти, удаляем только авторизацию
+  localStorage.removeItem('kc_tickets');
+  localStorage.removeItem('kc_reviews');
   location.reload();
 }
 
@@ -431,12 +549,15 @@ window.addEventListener('load', () => {
   const t = localStorage.getItem('kc_token');
   const a = localStorage.getItem('kc_admin');
   if (t && a) {
-    TOKEN = t; ADMIN_ID = String(a);
+    TOKEN = t; ADMIN_ID = parseInt(a);
     document.getElementById('inp-token').value = t;
     document.getElementById('inp-admin').value = a;
     
-    const savedRev = localStorage.getItem('kc_reviews');
-    if (savedRev) reviews = JSON.parse(savedRev);
+    const savedReviews = localStorage.getItem('kc_reviews');
+    if (savedReviews) reviews = JSON.parse(savedReviews);
+    
+    const savedTickets = localStorage.getItem('kc_tickets');
+    if (savedTickets) tickets = JSON.parse(savedTickets);
     
     launch();
   }
@@ -444,6 +565,16 @@ window.addEventListener('load', () => {
 
 async function startPolling() {
   polling = true;
+  setStatus(false, 'Удаление вебхука...');
+  try {
+    const res = await fetch(`${API()}/deleteWebhook`, { method: 'POST' });
+    const d = await res.json();
+    if (!d.ok) throw new Error(d.description);
+  } catch(e) {
+    setStatus(false, 'Ошибка удаления вебхука: ' + e.message);
+    polling = false;
+    return;
+  }
   setStatus(true, 'Бот работает · polling...');
   poll();
 }
@@ -457,8 +588,7 @@ function stopPolling() {
 async function poll() {
   if (!polling) return;
   try {
-    const updatesQuery = encodeURIComponent('["message","callback_query"]');
-    const res = await fetch(`${API()}/getUpdates?offset=${offset}&timeout=25&allowed_updates=${updatesQuery}`);
+    const res = await fetch(`${API()}/getUpdates?offset=${offset}&timeout=25&allowed_updates=["message","callback_query"]`);
     const data = await res.json();
     if (!data.ok) throw new Error(data.description);
 
@@ -470,19 +600,28 @@ async function poll() {
     setStatus(true, `Бот работает · последнее обновление: ${timeNow()}`);
   } catch(e) {
     console.error(e);
-    setStatus(false, `Ошибка: ${e.message}`);
-    await sleep(5000);
+    if (e.message.includes("Conflict")) {
+      setStatus(false, `❌ КОНФЛИКТ ТОКЕНОВ! Закройте другие вкладки панели или сделайте /revoke у @BotFather`, true);
+    } else {
+      setStatus(false, `Ошибка: ${e.message}`);
+    }
+    await sleep(4000);
   }
   if (polling) pollTimer = setTimeout(poll, 300);
 }
 
 async function handleMessage(msg) {
-  const chatId   = String(msg.chat.id);
+  const chatId   = msg.chat.id;
   const text     = msg.text || '';
   const from     = msg.from;
-  const fromName = (from.first_name + (from.last_name ? ' ' + from.last_name : '')).trim();
+  let fromName = (from.first_name + (from.last_name ? ' ' + from.last_name : '')).trim();
 
   if (from.is_bot) return;
+  if (chatId === ADMIN_ID && msg.reply_to_message) return;
+
+  if (chatId === ADMIN_ID) {
+    fromName = "🛠️ Тест (Администратор)";
+  }
 
   if (pendingReviews[chatId]?.waitingText) {
     if (text === '/skip') {
@@ -495,34 +634,29 @@ async function handleMessage(msg) {
       saveReview(chatId, fromName, from.username, stars, text);
       await sendMsg(chatId, `🎉 <b>Спасибо за отзыв!</b>\n\nОценка: <b>${starsBar(stars)} (${stars}/5)</b>\n\n💬 <i>«${escHTML(text)}»</i>\n\nМы стараемся каждый день 💚\n━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>`);
       addMsgToTicket(chatId, fromName, from.username, 'user', `⭐${stars}/5 — «${text}»`);
-      updateStats();
     }
+    updateStats();
     return;
   }
 
-  // Если тикет был закрыт, а юзер пишет снова - открываем его
   if (!tickets[chatId]) {
-    tickets[chatId] = { name: fromName, username: from.username || '', msgs: [], unread: true, closed: false };
-    totalTickets++;
+    tickets[chatId] = { name: fromName, username: from.username || '', msgs: [], unread: true };
   } else {
     tickets[chatId].unread = true;
-    tickets[chatId].closed = false; // Переоткрываем тикет
   }
-  updateStats();
 
   addMsgToTicket(chatId, fromName, from.username, 'user', text || '[медиафайл]');
-  
-  // Отвечаем авто-сообщением только если это новое сообщение (первое в открытом тикете)
-  if (tickets[chatId].msgs.length === 1 || tickets[chatId].closed === false) {
-    await sendMsg(chatId, '📬 <b>Ваше обращение принято!</b>\n\n⏳ Мы ответим вам <b>в ближайшее время</b>.');
-  }
+  renderTicketList();
+  updateStats();
+
+  await sendMsg(chatId, '📬 <b>Ваше обращение принято!</b>\n\n⏳ Мы ответим вам <b>в ближайшее время</b>.\n\nПосле получения ответа, пожалуйста, не забудьте оставить <b>отзыв</b> о решении проблемы 🌟\n\n━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>');
 
   playPing();
   browserNotify(`Новое обращение от ${fromName}`, text || '[медиафайл]');
 }
 
 async function handleCallback(cb) {
-  const chatId = String(cb.from.id);
+  const chatId = cb.from.id;
   const data   = cb.data || '';
   await fetch(`${API()}/answerCallbackQuery?callback_query_id=${cb.id}`);
 
@@ -530,7 +664,7 @@ async function handleCallback(cb) {
 
   const parts  = data.split('_');
   const action = parts[1];
-  const uid    = String(parts[2]);
+  const uid    = parseInt(parts[2]);
 
   if (chatId !== uid) return;
 
@@ -549,12 +683,6 @@ async function handleCallback(cb) {
 
 async function sendReply() {
   if (!activeChat) return;
-  const t = tickets[activeChat];
-  if (t && t.closed) {
-    showToast('❌ Этот тикет закрыт. Пользователь должен написать первым.');
-    return;
-  }
-
   const input = document.getElementById('reply-input');
   const text  = input.value.trim();
   if (!text) return;
@@ -563,28 +691,15 @@ async function sendReply() {
   btn.disabled = true;
 
   try {
-    await sendMsg(activeChat, `✅ <b>Ответ поддержки KozloCraft:</b>\n` + `━━━━━━━━━━━━━━━━━━━\n${escHTML(text)}\n` + `━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>`);
+    await sendMsg(activeChat, `✅ <b>Ответ поддержки KozloCraft:</b>\n━━━━━━━━━━━━━━━━━━━\n${escHTML(text)}\n━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>`);
     addMsgToTicket(activeChat, 'Вы', null, 'admin', text);
     input.value = ''; input.style.height = 'auto';
+    setTimeout(() => askForReview(activeChat), 2000);
     showToast('✅ Ответ отправлен!');
   } catch(e) {
     showToast('❌ Ошибка: ' + e.message);
   }
   btn.disabled = false;
-}
-
-async function closeActiveTicket() {
-  if (!activeChat || !tickets[activeChat]) return;
-  if (confirm('Закрыть это обращение и попросить отзыв у пользователя?')) {
-    tickets[activeChat].closed = true;
-    tickets[activeChat].unread = false;
-    addSystemMsg(activeChat, 'Тикет закрыт администратором');
-    askForReview(activeChat);
-    saveTickets();
-    renderTicketList();
-    renderChat(activeChat); // Чтобы скрыть поле ввода
-    showToast('✅ Тикет закрыт!');
-  }
 }
 
 async function askForReview(chatId) {
@@ -605,15 +720,21 @@ async function askForReview(chatId) {
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
       chat_id: chatId,
-      text: '⭐ <b>Ваше обращение закрыто! Оцените нашу поддержку!</b>\n\nНасколько вы довольны помощью?\n\n<b>Выберите оценку:</b>',
+      text: '⭐ <b>Оцените нашу поддержку!</b>\n\nНасколько вы довольны помощью?\nВаш отзыв помогает нам расти 🚀\n\n<b>Выберите оценку:</b>',
       parse_mode: 'HTML',
       reply_markup: kb
     })
   });
+  addSystemMsg(chatId, 'Запрос отзыва отправлен');
 }
 
 function saveReview(chatId, name, username, stars, text) {
-  reviews.push({ chatId, name, username: username || name, stars, text, date: new Date().toLocaleString('ru-RU') });
+  reviews.push({
+    chatId, name,
+    username: username || name,
+    stars, text,
+    date: new Date().toLocaleString('ru-RU')
+  });
   localStorage.setItem('kc_reviews', JSON.stringify(reviews));
   notifyAdminReview(name, stars, text);
   updateStats();
@@ -673,12 +794,12 @@ function closeReviews() {
 }
 
 function addMsgToTicket(chatId, name, username, type, text) {
-  chatId = String(chatId);
   if (!tickets[chatId]) {
-    tickets[chatId] = { name, username: username||'', msgs:[], unread: true, closed: false };
+    tickets[chatId] = { name, username: username||'', msgs:[], unread: true };
   }
   tickets[chatId].msgs.push({ type, text, time: timeNow() });
-  saveTickets(); // Сохраняем в память
+  
+  localStorage.setItem('kc_tickets', JSON.stringify(tickets));
   
   if (chatId === activeChat) renderChat(chatId);
   renderTicketList();
@@ -698,18 +819,12 @@ function renderTicketList() {
     return;
   }
 
-  // Сортировка: сначала открытые, потом закрытые
-  const sortedTickets = Object.entries(tickets).sort((a, b) => {
-    if (a[1].closed === b[1].closed) return 0;
-    return a[1].closed ? 1 : -1;
-  });
-
-  list.innerHTML = sortedTickets.map(([id, t]) => {
+  list.innerHTML = Object.entries(tickets).reverse().map(([id, t]) => {
     const last = t.msgs[t.msgs.length-1];
     const preview = last ? last.text.slice(0, 40) : '—';
-    const cls = (String(id) === activeChat ? 'active ' : '') + (t.unread ? 'unread ' : '') + (t.closed ? 'closed' : '');
-    return `<div class="ticket-item ${cls}" onclick="selectChat('${id}')"> 
-      <div class="ti-name">${escHTML(t.name)} ${t.closed ? ' [ЗАКРЫТ]' : ''}</div>
+    const cls = (parseInt(id)===activeChat ? 'active ' : '') + (t.unread ? 'unread' : '');
+    return `<div class="ticket-item ${cls}" onclick="selectChat(${id})">
+      <div class="ti-name">${escHTML(t.name)}</div>
       <div class="ti-preview">${escHTML(preview)}</div>
       <div class="ti-time">${last?.time || ''}</div>
     </div>`;
@@ -717,50 +832,42 @@ function renderTicketList() {
 }
 
 function selectChat(chatId) {
-  activeChat = String(chatId);
-  const t = tickets[activeChat];
+  activeChat = chatId;
+  const t = tickets[chatId];
   if (t) {
     t.unread = false;
-    saveTickets();
+    localStorage.setItem('kc_tickets', JSON.stringify(tickets));
   }
 
-  document.getElementById('chat-header-wrap').style.display = 'none';
+  const wrap = document.getElementById('chat-header-wrap');
+  wrap.style.display = 'none';
   const main = document.getElementById('chat-main');
   main.style.display = 'flex';
 
   const initials = (t?.name || '?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
   document.getElementById('ch-avatar').textContent = initials || '?';
   document.getElementById('ch-name').textContent = t?.name || '—';
-  document.getElementById('ch-sub').textContent = (t?.username ? '@'+t.username + '  •  ' : '') + `ID: ${activeChat}`;
+  document.getElementById('ch-sub').textContent = (t?.username ? '@'+t.username + '  •  ' : '') + `ID: ${chatId}`;
 
-  renderChat(activeChat);
+  renderChat(chatId);
   renderTicketList();
 }
 
 function renderChat(chatId) {
-  if (String(chatId) !== activeChat) return;
-  const t = tickets[activeChat];
+  if (chatId !== activeChat) return;
+  const t = tickets[chatId];
   const container = document.getElementById('chat-messages');
-  const replyBox = document.querySelector('.reply-box');
-  const btnClose = document.getElementById('btn-close-ticket');
-
   if (!t) return;
 
   container.innerHTML = t.msgs.map(m => {
     let cls = m.type === 'admin' ? 'from-admin' : m.type === 'system' ? 'system' : 'from-user';
-    return `<div class="msg ${cls}">${escHTML(m.text)}<div class="msg-meta">${m.time}</div></div>`;
+    return `<div class="msg ${cls}">
+      ${escHTML(m.text)}
+      <div class="msg-meta">${m.time}</div>
+    </div>`;
   }).join('');
 
   container.scrollTop = container.scrollHeight;
-
-  // Прячем ввод и кнопку закрытия, если тикет уже закрыт
-  if (t.closed) {
-    replyBox.style.display = 'none';
-    btnClose.style.display = 'none';
-  } else {
-    replyBox.style.display = 'flex';
-    btnClose.style.display = 'block';
-  }
 }
 
 function updateStats() {
@@ -770,9 +877,15 @@ function updateStats() {
   document.getElementById('stat-avg').textContent = avg === '—' ? '—' : avg + '⭐';
 }
 
-function setStatus(online, text) {
+function setStatus(online, text, isError = false) {
+  const textEl = document.getElementById('status-text');
   document.getElementById('dot').className = 'status-dot' + (online ? '' : ' offline');
-  document.getElementById('status-text').textContent = text;
+  textEl.textContent = text;
+  if (isError) {
+    textEl.classList.add('error-highlight');
+  } else {
+    textEl.classList.remove('error-highlight');
+  }
 }
 
 function showToast(msg) {
@@ -831,7 +944,9 @@ function playPing() {
 function browserNotify(title, body) {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'granted') {
-    new Notification('⛏ KozloCraft: ' + title, { body });
+    new Notification('⛏ KozloCraft: ' + title, { body, icon: '' });
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
   }
 }
 
