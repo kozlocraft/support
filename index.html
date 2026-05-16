@@ -518,20 +518,33 @@ function startBot() {
   localStorage.setItem('kc_token', TOKEN);
   localStorage.setItem('kc_admin', ADMIN_ID);
   
+  loadDataFromStorage();
+  launch();
+}
+
+function loadDataFromStorage() {
   const savedReviews = localStorage.getItem('kc_reviews');
   if (savedReviews) reviews = JSON.parse(savedReviews);
+  else reviews = [];
 
   const savedTickets = localStorage.getItem('kc_tickets');
   if (savedTickets) tickets = JSON.parse(savedTickets);
-
-  launch();
+  else tickets = {};
 }
 
 function launch() {
   document.getElementById('setup').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  
+  // Принудительно рендерим списки и обновляем счетчики из загруженной памяти
   renderTicketList();
   updateStats();
+  
+  // Если была активная сессия до обновления, восстанавливаем её визуально
+  if (activeChat && tickets[activeChat]) {
+    selectChat(activeChat);
+  }
+
   startPolling();
 }
 
@@ -553,12 +566,7 @@ window.addEventListener('load', () => {
     document.getElementById('inp-token').value = t;
     document.getElementById('inp-admin').value = a;
     
-    const savedReviews = localStorage.getItem('kc_reviews');
-    if (savedReviews) reviews = JSON.parse(savedReviews);
-    
-    const savedTickets = localStorage.getItem('kc_tickets');
-    if (savedTickets) tickets = JSON.parse(savedTickets);
-    
+    loadDataFromStorage();
     launch();
   }
 });
@@ -635,7 +643,6 @@ async function handleMessage(msg) {
       await sendMsg(chatId, `🎉 <b>Спасибо за отзыв!</b>\n\nОценка: <b>${starsBar(stars)} (${stars}/5)</b>\n\n💬 <i>«${escHTML(text)}»</i>\n\nМы стараемся каждый день 💚\n━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>`);
       addMsgToTicket(chatId, fromName, from.username, 'user', `⭐${stars}/5 — «${text}»`);
     }
-    updateStats();
     return;
   }
 
@@ -646,9 +653,7 @@ async function handleMessage(msg) {
   }
 
   addMsgToTicket(chatId, fromName, from.username, 'user', text || '[медиафайл]');
-  renderTicketList();
-  updateStats();
-
+  
   await sendMsg(chatId, '📬 <b>Ваше обращение принято!</b>\n\n⏳ Мы ответим вам <b>в ближайшее время</b>.\n\nПосле получения ответа, пожалуйста, не забудьте оставить <b>отзыв</b> о решении проблемы 🌟\n\n━━━━━━━━━━━━━━━━━━━\n⛏ <i>KozloCraft Support Team</i>');
 
   playPing();
@@ -736,8 +741,14 @@ function saveReview(chatId, name, username, stars, text) {
     date: new Date().toLocaleString('ru-RU')
   });
   localStorage.setItem('kc_reviews', JSON.stringify(reviews));
-  notifyAdminReview(name, stars, text);
+  
+  // Срочно форсируем обновление интерфейса
   updateStats();
+  if (document.getElementById('reviews-panel').classList.contains('open')) {
+    openReviews(); // Перерендерить открытое модальное окно отзывов
+  }
+  
+  notifyAdminReview(name, stars, text);
 }
 
 function notifyAdminReview(name, stars, text) {
@@ -801,8 +812,12 @@ function addMsgToTicket(chatId, name, username, type, text) {
   
   localStorage.setItem('kc_tickets', JSON.stringify(tickets));
   
-  if (chatId === activeChat) renderChat(chatId);
+  // Синхронно обновляем интерфейс везде
+  updateStats();
   renderTicketList();
+  if (chatId === activeChat) {
+    renderChat(chatId);
+  }
 }
 
 function addSystemMsg(chatId, text) {
